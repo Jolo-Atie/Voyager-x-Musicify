@@ -4,33 +4,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0A1622" />
+  <meta name="description" content="Voyager — Real-time weather conditions, 7-day forecasts, travel advisories, and ferry route recommendations for your journey." />
   <title>Voyager — Weather &amp; Travel Advisory</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 
-<body data-condition="clear" data-daytime="day">
+<body data-condition="clear" data-daytime="day" data-loaded="false">
 
   <div class="drawer-overlay" id="drawerOverlay"></div>
 
   <!-- Off-canvas itinerary navigation -->
   <nav class="drawer" id="drawer" aria-label="Main navigation">
     <div class="drawer__head">
-      <span class="drawer__mark">◈</span>
-      <div>
-        <p class="drawer__brand">Voyager</p>
-        <p class="drawer__tagline">Weather &amp; travel advisory</p>
-      </div>
       <button class="drawer__close" id="drawerClose" aria-label="Close menu">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
         </svg>
       </button>
+      <div class="drawer__branding">
+        <span class="drawer__mark">◈</span>
+        <div>
+          <p class="drawer__brand">Voyager</p>
+          <p class="drawer__tagline">Weather &amp; Travel</p>
+        </div>
+      </div>
     </div>
+
+    <div class="drawer__divider"></div>
 
     <p class="drawer__label">Itinerary</p>
     <ul class="drawer__route">
@@ -49,7 +55,7 @@
           <span class="navlink__stop">02</span>
           <span class="navlink__icon">📅</span>
           <span class="navlink__text">
-            <span class="navlink__title">Weather Forecast</span>
+            <span class="navlink__title">Forecast</span>
             <span class="navlink__sub">7-day outlook</span>
           </span>
         </button>
@@ -59,8 +65,8 @@
           <span class="navlink__stop">03</span>
           <span class="navlink__icon">🚦</span>
           <span class="navlink__text">
-            <span class="navlink__title">Travel Advisory</span>
-            <span class="navlink__sub">Safety recommendation</span>
+            <span class="navlink__title">Advisory</span>
+            <span class="navlink__sub">Travel safety</span>
           </span>
         </button>
       </li>
@@ -70,14 +76,17 @@
           <span class="navlink__icon">ℹ️</span>
           <span class="navlink__text">
             <span class="navlink__title">About</span>
-            <span class="navlink__sub">How Voyager works</span>
+            <span class="navlink__sub">How it works</span>
           </span>
         </button>
       </li>
     </ul>
 
+    <div class="drawer__divider drawer__divider--bottom"></div>
+
     <div class="drawer__foot">
-      <span>Voyager v1.0</span>
+      <p class="drawer__version">Voyager v2.0</p>
+      <p class="drawer__subtitle">Real-time travel companion</p>
     </div>
   </nav>
 
@@ -91,36 +100,66 @@
       <div class="brand">
         <span class="brand__mark">◈</span>
         <span class="brand__title">Voyager</span>
+        <span class="brand__badge">v2.0</span>
       </div>
 
       <form class="search" id="searchForm" autocomplete="off">
-        <input type="text" id="searchInput" class="search__input" placeholder="Search a city or municipality…"
-          aria-label="Search location" />
-        <button type="submit" class="search__btn" aria-label="Search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <div class="search__wrapper">
+          <svg class="search__icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
             <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
-        </button>
-        <ul class="search__suggestions" id="suggestions" hidden></ul>
+          <input type="text" id="searchInput" class="search__input" placeholder="Search a city…"
+            aria-label="Search location" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" />
+          <button type="submit" class="search__btn" aria-label="Search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+              <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <ul class="search__suggestions" id="suggestions" role="listbox" aria-label="Search suggestions" hidden></ul>
       </form>
     </header>
 
     <!-- Weather alert banner — shown site-wide since it's safety-critical -->
-    <div class="alert" id="alertBanner" hidden>
+    <div class="alert" id="alertBanner" hidden role="alert" aria-live="assertive">
       <span class="alert__icon">⚠️</span>
       <span class="alert__text" id="alertText"></span>
+      <button class="alert__close" aria-label="Dismiss alert" onclick="this.parentElement.hidden=true">✕</button>
     </div>
 
-    <div class="loading" id="loadingState" hidden>
-      <div class="loading__spinner"></div>
-      <p>Reading the sky…</p>
+    <div class="loading-container" id="loadingState" hidden>
+      <div class="loading" role="status" aria-live="polite">
+        <div class="loading__spinner"></div>
+        <p class="loading__text">Reading the sky…</p>
+      </div>
     </div>
 
-    <div class="empty" id="emptyState">
-      <p class="empty__title">No location selected</p>
-      <p class="empty__body">Search for a city or municipality above to pull up current conditions, a 7-day outlook, and
-        a travel advisory.</p>
+    <div class="empty" id="emptyState" role="main">
+      <div class="empty__content">
+        <div class="empty__icon">🧭</div>
+        <p class="empty__title">Welcome to Voyager</p>
+        <p class="empty__body">Search for a city or municipality to get real-time weather conditions, a detailed 7-day forecast, travel safety recommendations, and ferry route options for your destination.</p>
+        <div class="empty__features">
+          <div class="empty__feature">
+            <span class="empty__feature-icon">⛅</span>
+            <p>Live Weather</p>
+          </div>
+          <div class="empty__feature">
+            <span class="empty__feature-icon">📅</span>
+            <p>7-Day Forecast</p>
+          </div>
+          <div class="empty__feature">
+            <span class="empty__feature-icon">🚦</span>
+            <p>Travel Advisory</p>
+          </div>
+          <div class="empty__feature">
+            <span class="empty__feature-icon">🚢</span>
+            <p>Ferry Routes</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <main id="pages" hidden>
@@ -190,39 +229,42 @@
       </section>
 
       <!-- ============ FERRY ROUTES ============ -->
-      <section class="panel panel--ferry">
+      <section class="panel panel--ferry" data-section="ferry">
         <div class="section__head">
-          <p class="section__label">🚢 Ferry Routes</p>
-          <button class="link-btn" id="refreshFerryBtn">
-            Refresh
+          <div>
+            <p class="section__label">⚓ Ferry Routes</p>
+            <p class="section__description">Scheduled ferries departing from your location</p>
+          </div>
+          <button class="link-btn link-btn--icon" id="refreshFerryBtn" title="Refresh ferry routes">
+            🔄 Refresh
           </button>
         </div>
 
-        <p class="ferry__subtitle">
-          Available ferry schedules for your selected destination.
-        </p>
+        <div class="ferry__content">
+          <div id="ferryLoading" class="ferry__loading" hidden role="status" aria-live="polite">
+            <div class="ferry__loading-spinner"></div>
+            <p>Loading ferry schedules…</p>
+          </div>
 
-        <div id="ferryLoading" class="ferry__loading" hidden>
-          Loading ferry routes...
+          <div id="ferryError" class="ferry__error" hidden role="alert">
+            <span class="ferry__error-icon">⚠️</span>
+            <p>Unable to load ferry routes. Please try again.</p>
+          </div>
+
+          <div id="ferryRoutes" class="ferry__grid">
+            <!-- Routes will be inserted here using JavaScript -->
+          </div>
+
+          <div class="ferry__recommendation" id="ferryRecommendationBox">
+            <div class="ferry__recommendation-icon">💡</div>
+            <div>
+              <p class="ferry__recommendation-label">Travel Tip</p>
+              <p id="ferryRecommendation" class="ferry__recommendation-text">
+                Search a location to receive ferry travel recommendations.
+              </p>
+            </div>
+          </div>
         </div>
-
-        <div id="ferryError" class="ferry__error" hidden>
-          Unable to load ferry routes.
-        </div>
-
-        <div id="ferryRoutes">
-
-          <!-- Routes will be inserted here using JavaScript -->
-
-        </div>
-
-        <div class="ferry__recommendation">
-          <h4>Travel Recommendation</h4>
-          <p id="ferryRecommendation">
-            Search a location to receive ferry travel recommendations.
-          </p>
-        </div>
-
       </section>
 
       <!-- ============ FORECAST ============ -->
@@ -292,32 +334,87 @@
       <!-- ============ ABOUT ============ -->
       <section class="page" id="page-about" data-page="about" hidden>
         <div class="page__header">
-          <p class="page__eyebrow">04 · About</p>
+          <p class="page__eyebrow">04 · Information</p>
           <h1 class="page__title">About Voyager</h1>
-          <p class="page__body">Voyager is a lightweight travel-weather companion built for Version 1 scope: dashboard,
-            forecast, search, advisory, and alerts.</p>
+          <p class="page__body">Your intelligent travel companion, combining real-time weather data with travel safety insights and ferry scheduling.</p>
         </div>
 
         <div class="grid grid--single">
           <section class="panel panel--about">
-            <p class="section__label">How it works</p>
+            <p class="section__label">✨ Features</p>
             <ul class="about__list">
-              <li><strong>Weather dashboard</strong> — live temperature, condition, humidity, and wind for your selected
-                location.</li>
-              <li><strong>7-day forecast</strong> — daily highs, lows, and conditions, plus a 24-hour temperature trend.
+              <li>
+                <span class="about__icon">⛅</span>
+                <div>
+                  <strong>Weather Dashboard</strong>
+                  <p>Live temperature, conditions, humidity, and wind speed for your destination.</p>
+                </div>
               </li>
-              <li><strong>Location search</strong> — find any city or municipality worldwide.</li>
-              <li><strong>Travel advisory</strong> — an automated 🟢🟡🔴 rating based on today's conditions.</li>
-              <li><strong>Weather alerts</strong> — a banner appears site-wide when severe weather is detected.</li>
+              <li>
+                <span class="about__icon">📅</span>
+                <div>
+                  <strong>7-Day Forecast</strong>
+                  <p>Daily highs and lows with detailed hourly temperature trends.</p>
+                </div>
+              </li>
+              <li>
+                <span class="about__icon">🌐</span>
+                <div>
+                  <strong>Global Search</strong>
+                  <p>Find any city or municipality worldwide instantly.</p>
+                </div>
+              </li>
+              <li>
+                <span class="about__icon">🚦</span>
+                <div>
+                  <strong>Travel Advisory</strong>
+                  <p>Automated safety ratings based on current weather conditions.</p>
+                </div>
+              </li>
+              <li>
+                <span class="about__icon">🚢</span>
+                <div>
+                  <strong>Ferry Routes</strong>
+                  <p>Dynamic ferry schedules with real-time distance calculations.</p>
+                </div>
+              </li>
+              <li>
+                <span class="about__icon">⚠️</span>
+                <div>
+                  <strong>Alert System</strong>
+                  <p>Instant notifications for severe weather conditions.</p>
+                </div>
+              </li>
             </ul>
           </section>
 
           <section class="panel panel--about">
-            <p class="section__label">Data sources</p>
-            <p class="about__body">Forecast data is provided by <strong>meteoblue</strong>. Location search uses the
-              free <strong>Open-Meteo</strong> geocoding service.</p>
-            <p class="about__body about__disclaimer">Travel advisories are generated automatically from weather data and
-              are a general guide only — always confirm conditions with official local authorities before traveling.</p>
+            <p class="section__label">📊 Data Sources</p>
+            <div class="about__sources">
+              <div class="about__source">
+                <p class="about__source-title">Weather Data</p>
+                <p class="about__source-desc">Powered by <strong>meteoblue</strong>, a leading weather API providing accurate forecasts and current conditions.</p>
+              </div>
+              <div class="about__source">
+                <p class="about__source-title">Location Search</p>
+                <p class="about__source-desc">Using <strong>Open-Meteo</strong>'s free geocoding service for global location data.</p>
+              </div>
+              <div class="about__source">
+                <p class="about__source-title">Ferry Routes</p>
+                <p class="about__source-desc">Dynamically generated based on geographic proximity using Haversine distance calculations.</p>
+              </div>
+            </div>
+            <p class="about__disclaimer">ℹ️ Travel advisories are automatically generated from weather data and serve as a general guide. Always confirm conditions with official local authorities before traveling.</p>
+          </section>
+
+          <section class="panel panel--about panel--about-cta">
+            <div class="about__cta">
+              <p class="about__cta-title">Ready to explore?</p>
+              <p class="about__cta-text">Search for any city above to get started with live weather, forecasts, and travel recommendations.</p>
+              <button class="about__cta-btn" onclick="document.getElementById('searchInput').focus()">
+                Start Exploring
+              </button>
+            </div>
           </section>
         </div>
       </section>
@@ -345,8 +442,23 @@
     </main>
 
     <footer class="footer">
-      <span>Voyager · Weather data via meteoblue</span>
-      <span id="footerCoords"></span>
+      <div class="footer__content">
+        <div class="footer__section">
+          <p class="footer__label">Voyager</p>
+          <p class="footer__text">Real-time weather &amp; travel companion</p>
+        </div>
+        <div class="footer__section">
+          <p class="footer__label">Data Sources</p>
+          <p class="footer__text">Weather by <strong>meteoblue</strong>, Locations by <strong>Open-Meteo</strong></p>
+        </div>
+        <div class="footer__section">
+          <p class="footer__label">Location</p>
+          <p class="footer__text" id="footerCoords">—</p>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copyright">© 2024 Voyager. Travel data updated in real-time.</p>
+      </div>
     </footer>
 
   </div>
