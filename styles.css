@@ -37,6 +37,153 @@
   box-sizing: border-box;
 }
 
+/* ==========================
+   Tropical Storm Monitor
+========================== */
+
+.panel--storms {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+
+.panel--storms::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 200, 255, 0.15),
+      transparent 40%
+    );
+  pointer-events: none;
+}
+
+
+.storm-status {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(0, 200, 120, .15);
+  color: #00d084;
+  border: 1px solid rgba(0,200,120,.3);
+}
+
+
+.storms__subtitle {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+
+
+#stormInfo {
+  display: grid;
+  gap: 1rem;
+}
+
+
+
+.storm-card {
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.08),
+      rgba(255,255,255,.02)
+    );
+
+  border: 1px solid rgba(255,255,255,.1);
+
+  border-radius: 18px;
+
+  padding: 1.2rem;
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease;
+
+}
+
+
+.storm-card:hover {
+
+  transform: translateY(-3px);
+
+  border-color: rgba(0,200,255,.5);
+
+}
+
+
+
+.storm-card h3 {
+
+  margin:0 0 .8rem;
+
+  font-size:1.2rem;
+
+  color:white;
+
+}
+
+
+
+.storm-card p {
+
+  margin:.4rem 0;
+
+  color:var(--text-secondary);
+
+}
+
+
+
+.storm-card strong {
+
+  color:white;
+
+}
+
+
+
+.storm-active {
+
+  color:#00d084;
+
+  font-weight:600;
+
+}
+
+
+
+.storm-inactive {
+
+  color:#aaa;
+
+}
+
+
+
+.storm-loading {
+
+  padding:1.5rem;
+
+  text-align:center;
+
+  color:var(--muted);
+
+  background:rgba(255,255,255,.03);
+
+  border-radius:14px;
+
+}
+
+
 html,
 body {
   margin: 0;

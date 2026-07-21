@@ -3,6 +3,8 @@ const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL = "https://my.meteoblue.com/packages/basic-1h_basic-day";
 const METEOBLUE_API_KEY = "ZFgqArEKt497xQiY";
 const FERRY_API_URL = "./api/ferry-routes.json";
+const STORMS_API_URL = "./api/storms.php";
+
 
 const PICTOCODES = {
   1: { label: "Clear sky", icon: "☀️", category: "clear" },
@@ -149,6 +151,93 @@ async function runGeocode(query) {
     hideSuggestions();
   }
 }
+async function loadStorms(location)
+{
+  try {
+
+    const response = await fetch(
+      `${STORMS_API_URL}?country=${encodeURIComponent(location.country)}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Storm API failed");
+    }
+
+    const storms = await response.json();
+
+    console.log(
+      "Storm search:",
+      location.country,
+      storms
+    );
+
+    const stormInfo =
+      document.getElementById("stormInfo");
+
+
+    if (!stormInfo) return;
+
+
+    if (!Array.isArray(storms) || storms.length === 0) {
+
+      stormInfo.innerHTML = `
+        <p style="margin-bottom: 20px">
+        🟢 No active tropical storms near 
+        ${location.city}, ${location.country}
+        </p>
+      `;
+
+      return;
+    }
+
+
+   stormInfo.innerHTML = storms.map(storm => `
+  <div class="storm-card">
+
+    <h3>
+      🌀 ${storm.name ?? "Unnamed Storm"}
+    </h3>
+
+    <p>
+      <strong>Government ID:</strong>
+      ${storm.govId ?? "N/A"}
+    </p>
+
+    <p>
+      <strong>Basin:</strong>
+      ${storm.basinId ?? "N/A"}
+    </p>
+
+    <p>
+      <strong>Status:</strong>
+
+      <span class="${storm.isActive ? "storm-active" : "storm-inactive"}">
+        ${storm.isActive ? "🟢 Active" : "⚪ Inactive"}
+      </span>
+
+    </p>
+
+  </div>
+`).join("");
+
+
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    document.getElementById("stormInfo").innerHTML =
+    `
+    <p>
+    Unable to load storm information.
+    </p>
+    `;
+
+  }
+}
+
+
 
 function renderSuggestions(results) {
   if (!results.length) {
@@ -170,12 +259,22 @@ function hideSuggestions() {
   suggestionsEl.hidden = true;
   suggestionsEl.innerHTML = "";
 }
-
 function selectPlace(place) {
-  searchInput.value = `${place.name}${place.admin1 ? ", " + place.admin1 : ""}`;
+  searchInput.value =
+    `${place.name}${place.admin1 ? ", " + place.admin1 : ""}`;
+
   hideSuggestions();
+
   loadWeather(place);
+
+  loadStorms({
+    city: place.name,
+    country: place.country,
+    latitude: place.latitude,
+    longitude: place.longitude
+  });
 }
+
 
 async function loadWeather(place) {
   emptyState.hidden = true;
@@ -500,7 +599,8 @@ function renderFerryRoutes(routes) {
 refreshFerryBtn.addEventListener("click", loadFerryRoutes);
 window.addEventListener("DOMContentLoaded", () => {
 
-    loadFerryRoutes();
+    loadFerryRoutes(); 
+    loadStorms(); 
 
     selectPlace({
         name: "Manila",
