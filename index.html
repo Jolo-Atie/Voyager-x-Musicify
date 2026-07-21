@@ -118,6 +118,7 @@
             </svg>
           </button>
         </div>
+        <div class="search__status" id="searchStatus" aria-live="polite" hidden></div>
         <ul class="search__suggestions" id="suggestions" role="listbox" aria-label="Search suggestions" hidden></ul>
       </form>
     </header>
@@ -185,7 +186,7 @@
                 <p class="hero__location" id="locationName">—</p>
                 <p class="hero__updated" id="updatedAt">—</p>
               </div>
-              <div class="hero__icon" id="conditionIcon">☀️</div>
+              <div class="hero__icon" id="conditionIcon"></div>
             </div>
 
             <div class="hero__temp">
@@ -229,41 +230,39 @@
       </section>
 
       <!-- ============ FERRY ROUTES ============ -->
-      <section class="panel panel--ferry" data-section="ferry">
-        <div class="section__head">
-          <div>
-            <p class="section__label">⚓ Ferry Routes</p>
-            <p class="section__description">Scheduled ferries departing from your location</p>
-          </div>
-          <button class="link-btn link-btn--icon" id="refreshFerryBtn" title="Refresh ferry routes">
-            🔄 Refresh
-          </button>
+      <section class="page" id="page-ferry" data-page="ferry" hidden>
+        <div class="page__header">
+          <p class="page__eyebrow">03 · Ferry Routes</p>
+          <h1 class="page__title">Ferry route status</h1>
+          <p class="page__body">Check current ferry schedules and recommendations for your selected destination.</p>
         </div>
 
-        <div class="ferry__content">
-          <div id="ferryLoading" class="ferry__loading" hidden role="status" aria-live="polite">
-            <div class="ferry__loading-spinner"></div>
-            <p>Loading ferry schedules…</p>
-          </div>
-
-          <div id="ferryError" class="ferry__error" hidden role="alert">
-            <span class="ferry__error-icon">⚠️</span>
-            <p>Unable to load ferry routes. Please try again.</p>
-          </div>
-
-          <div id="ferryRoutes" class="ferry__grid">
-            <!-- Routes will be inserted here using JavaScript -->
-          </div>
-
-          <div class="ferry__recommendation" id="ferryRecommendationBox">
-            <div class="ferry__recommendation-icon">💡</div>
-            <div>
-              <p class="ferry__recommendation-label">Travel Tip</p>
-              <p id="ferryRecommendation" class="ferry__recommendation-text">
-                Search a location to receive ferry travel recommendations.
-              </p>
+        <div class="grid grid--single">
+          <section class="panel panel--ferry">
+            <div class="section__head">
+              <p class="section__label">Route recommendations</p>
+              <button class="link-btn" id="refreshFerryBtn">Refresh</button>
             </div>
-          </div>
+
+            <p class="ferry__subtitle">
+              Available ferry schedules for your selected destination.
+            </p>
+
+            <div id="ferryLoading" class="ferry__loading" hidden>
+              Loading ferry routes...
+            </div>
+
+            <div id="ferryError" class="ferry__error" hidden>
+              Unable to load ferry routes.
+            </div>
+
+            <div id="ferryRoutes"></div>
+
+            <div class="ferry__recommendation">
+              <h4>Travel Recommendation</h4>
+              <p id="ferryRecommendation">Search a location to receive ferry travel recommendations.</p>
+            </div>
+          </section>
         </div>
       </section>
 
@@ -271,7 +270,7 @@
       <section class="page" id="page-forecast" data-page="forecast" hidden>
         <div class="page__header">
           <p class="page__eyebrow">02 · Weather Forecast</p>
-          
+
           <h1 class="page__title">7-day outlook</h1>
           <p class="page__body" id="forecastLocationLine">Search a location to see its forecast.</p>
         </div>
@@ -318,7 +317,7 @@
               <li><span class="legend__dot legend__dot--caution"></span>
                 <div>
                   <p class="legend__title">🟡 Travel with caution</p>
-                  <p class="legend__body">Rain, snow, fog, or moderate wind — plan for delays.</p>
+                  <p class="legend__body">Rain, snow, or moderate wind — plan for delays.</p>
                 </div>
               </li>
               <li><span class="legend__dot legend__dot--danger"></span>
@@ -352,7 +351,7 @@
                 </div>
               </li>
               <li>
-                <span class="about__icon">📅</span>
+                <span class="about__icon"></span>
                 <div>
                   <strong>7-Day Forecast</strong>
                   <p>Daily highs and lows with detailed hourly temperature trends.</p>

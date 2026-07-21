@@ -30,6 +30,7 @@ function pictoInfo(code) {
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
 const suggestionsEl = document.getElementById("suggestions");
+const searchStatus = document.getElementById("searchStatus");
 
 const pagesEl = document.getElementById("pages");
 const emptyState = document.getElementById("emptyState");
@@ -114,7 +115,7 @@ pageLinkTriggers.forEach((el) => {
 
 function initialPage() {
   const hash = window.location.hash.replace("#", "");
-  const valid = ["home", "forecast", "advisory", "about"];
+  const valid = ["home", "forecast", "ferry", "advisory", "about"];
   return valid.includes(hash) ? hash : "home";
 }
 
@@ -123,6 +124,7 @@ searchInput.addEventListener("input", () => {
   const query = searchInput.value.trim();
   if (query.length < 2) {
     hideSuggestions();
+    clearSearchStatus();
     return;
   }
   searchTimer = setTimeout(() => runGeocode(query), 300);
@@ -182,6 +184,7 @@ async function runGeocode(query) {
 function renderSuggestions(results) {
   if (!results.length) {
     hideSuggestions();
+    showSearchStatus("No matches found. Try a nearby city or municipality.", "warning");
     return;
   }
   suggestionsEl.innerHTML = "";
@@ -215,6 +218,7 @@ function renderSuggestions(results) {
 
   suggestionsEl.hidden = false;
   searchInput.setAttribute("aria-expanded", "true");
+  showSearchStatus("Use ↑ ↓ and Enter to choose a location.", "info");
 }
 
 function setActiveSuggestion(index) {
@@ -239,6 +243,20 @@ function hideSuggestions() {
   activeSuggestionIndex = -1;
   searchInput.setAttribute("aria-expanded", "false");
   searchInput.removeAttribute("aria-activedescendant");
+}
+
+function showSearchStatus(message, type = "info") {
+  if (!searchStatus) return;
+  searchStatus.textContent = message;
+  searchStatus.className = `search__status search__status--${type}`;
+  searchStatus.hidden = false;
+}
+
+function clearSearchStatus() {
+  if (!searchStatus) return;
+  searchStatus.textContent = "";
+  searchStatus.className = "search__status";
+  searchStatus.hidden = true;
 }
 
 function selectPlace(place) {
@@ -297,7 +315,12 @@ function renderDashboard(place, data) {
   const meta = data.metadata;
 
   const nowIdx = 0;
-  const info = pictoInfo(daily.pictocode[0]);
+  const currentPictocode = hourly.pictocode[nowIdx] || daily.pictocode[0];
+  let info = pictoInfo(currentPictocode);
+
+  if (info.category === "snow" && Math.round(hourly.temperature[nowIdx]) > 18) {
+    info = pictoInfo(1);
+  }
 
   const nowUtcMs = Date.now();
   const localMs = nowUtcMs + meta.utc_timeoffset * 3600 * 1000;
