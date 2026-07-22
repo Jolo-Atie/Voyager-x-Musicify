@@ -254,6 +254,27 @@ button {
   background: transparent;
 }
 
+.search__suggestion-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.search__suggestion-btn:hover,
+.search__suggestion-btn:focus-visible {
+  background: var(--ink-600);
+}
+
+.search__suggestion-btn:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: -2px;
+}
+
 .search__suggestions li small {
   display: block;
   color: var(--text-muted);
