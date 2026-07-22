@@ -113,18 +113,12 @@
 
       <form class="search" id="searchForm" autocomplete="off">
         <div class="search__wrapper">
-          <svg class="search__icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <svg class="search__icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
             <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
           <input type="text" id="searchInput" class="search__input" placeholder="Search a city…"
             aria-label="Search location" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" />
-          <button type="submit" class="search__btn" aria-label="Search">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
-              <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </button>
         </div>
         <div class="search__status" id="searchStatus" aria-live="polite" hidden></div>
         <ul class="search__suggestions" id="suggestions" role="listbox" aria-label="Search suggestions" hidden></ul>
