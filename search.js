@@ -69,12 +69,27 @@ function hideSuggestions() {
   suggestionsEl.hidden = true;
   suggestionsEl.innerHTML = "";
 }
-
 function selectPlace(place) {
-  searchInput.value = `${place.name}${place.admin1 ? ", " + place.admin1 : ""}`;
+
+  searchInput.value =
+    `${place.name}${place.admin1 ? ", " + place.admin1 : ""}`;
+
   hideSuggestions();
+
+  currentPlace = place;
+
   loadWeather(place);
+
+  loadStorms({
+    city: place.name,
+    country: place.country,
+    latitude: place.latitude,
+    longitude: place.longitude
+  });
+
+  loadFerryRoutes(place);
 }
+
 
 window.addEventListener("DOMContentLoaded", () => {
   selectPlace({

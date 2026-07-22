@@ -1,6 +1,6 @@
 
 const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
-const GEOCODE_REVERSE = "https://geocoding-api.open-meteo.com/v1/reverse";
+const GEOCODE_REVERSE = "https://nominatim.openstreetmap.org/reverse";
 const FORECAST_URL = "https://my.meteoblue.com/packages/basic-1h_basic-day";
 const METEOBLUE_API_KEY = "ZFgqArEKt497xQiY";
 const FERRY_API_URL = "./api/ferry-routes.json";
@@ -185,6 +185,9 @@ async function runGeocode(query) {
 async function loadStorms(location)
 {
   try {
+    console.log(STORMS_API_URL);
+console.log(`${STORMS_API_URL}?country=${location.country}`);
+
 
     const response = await fetch(
       `${STORMS_API_URL}?country=${encodeURIComponent(location.country)}`
@@ -337,6 +340,9 @@ function selectPlace(place) {
 
   hideSuggestions();
 
+  // remember the selected place for other features (ferry routes, refresh)
+  currentPlace = place;
+
   loadWeather(place);
 
   loadStorms({
@@ -345,13 +351,16 @@ function selectPlace(place) {
     latitude: place.latitude,
     longitude: place.longitude
   });
+
+  // load ferry routes relevant to the recently selected place
+  loadFerryRoutes(place);
 }
 
 
 async function loadWeather(place) {
   emptyState.hidden = true;
   pagesEl.hidden = true;
-  loadingState.hidden = false;
+  if (loadingState) loadingState.hidden = false;
   document.body.dataset.loaded = "false";
   alertBanner.hidden = true;
 
@@ -374,7 +383,7 @@ async function loadWeather(place) {
     renderDashboard(place, data);
   } catch (err) {
     console.error("Weather fetch error:", err);
-    loadingState.hidden = true;
+    if (loadingState) loadingState.hidden = true;
     document.body.dataset.loaded = "false";
     emptyState.hidden = false;
     emptyState.querySelector(".empty__title").textContent = "Couldn't load weather";
@@ -386,7 +395,7 @@ async function loadWeather(place) {
 }
 
 function renderDashboard(place, data) {
-  loadingState.hidden = true;
+  if (loadingState) loadingState.hidden = true;
   pagesEl.hidden = false;
   document.body.dataset.loaded = "true";
   goToPage(initialPage());
@@ -564,9 +573,14 @@ function renderHourlyChart(hourly) {
 }
 
 // --- Geolocation support: reverse geocode and select place ---
+/* ==========================
+   Geolocation + Reverse Geocoding
+========================== */
+
 function showLocationError(message) {
   alertText.textContent = message;
   alertBanner.hidden = false;
+
   setTimeout(() => {
     alertBanner.hidden = true;
   }, 5000);
@@ -574,59 +588,114 @@ function showLocationError(message) {
 
 async function handleGeolocationSuccess(position) {
   const { latitude, longitude } = position.coords;
+
   try {
-    const url = `${GEOCODE_REVERSE}?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&count=1&language=en&format=json`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const place = (data && data.results && data.results[0])
-      ? {
-          name: data.results[0].name || "Current location",
-          admin1: data.results[0].admin1 || "",
-          country: data.results[0].country || "",
-          latitude: data.results[0].latitude || latitude,
-          longitude: data.results[0].longitude || longitude,
-        }
-      : {
-          name: "Current location",
-          admin1: "",
-          country: "",
-          latitude,
-          longitude,
-        };
+    const url =
+      `${GEOCODE_REVERSE}?format=jsonv2&lat=${latitude}&lon=${longitude}`;
+
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Reverse geocoding failed (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    const address = data.address || {};
+
+    const place = {
+      name:
+        address.city ||
+        address.town ||
+        address.village ||
+        address.municipality ||
+        address.county ||
+        "Current location",
+
+      admin1:
+        address.state ||
+        address.region ||
+        "",
+
+      country:
+        address.country ||
+        "",
+
+      latitude,
+      longitude
+    };
+
+    console.log("Detected location:", place);
 
     selectPlace(place);
-  } catch (err) {
-    console.error("Reverse geocoding failed:", err);
-    showLocationError("Could not determine a place name for your location; using coordinates.");
-    selectPlace({ name: "Current location", admin1: "", country: "", latitude, longitude });
+
+  } catch (error) {
+
+    console.error("Reverse geocoding failed:", error);
+
+    showLocationError(
+      "Could not determine a place name for your location."
+    );
+
+    selectPlace({
+      name: "Current location",
+      admin1: "",
+      country: "",
+      latitude,
+      longitude
+    });
   }
 }
 
-function handleGeolocationError(err) {
-  console.warn("Geolocation error:", err);
-  if (err.code === 1) showLocationError("Location permission denied.");
-  else if (err.code === 2) showLocationError("Position unavailable.");
-  else if (err.code === 3) showLocationError("Location request timed out.");
-  else showLocationError("Unable to retrieve your location.");
+function handleGeolocationError(error) {
+
+  console.error(error);
+
+  switch (error.code) {
+
+    case error.PERMISSION_DENIED:
+      showLocationError("Location permission denied.");
+      break;
+
+    case error.POSITION_UNAVAILABLE:
+      showLocationError("Location unavailable.");
+      break;
+
+    case error.TIMEOUT:
+      showLocationError("Location request timed out.");
+      break;
+
+    default:
+      showLocationError("Unable to retrieve your location.");
+  }
 }
 
 function getCurrentLocation() {
+
   if (!navigator.geolocation) {
-    showLocationError("Geolocation is not supported by your browser.");
+    showLocationError("Geolocation is not supported by this browser.");
     return;
   }
 
-  try {
-    navigator.geolocation.getCurrentPosition(handleGeolocationSuccess, handleGeolocationError, {
+  navigator.geolocation.getCurrentPosition(
+    handleGeolocationSuccess,
+    handleGeolocationError,
+    {
       enableHighAccuracy: true,
       timeout: 10000,
-      maximumAge: 0,
-    });
-  } catch (err) {
-    console.error("Geolocation invocation error:", err);
-    showLocationError("Failed to start location request.");
-  }
+      maximumAge: 0
+    }
+  );
 }
+
+if (locateBtn) {
+  locateBtn.addEventListener("click", getCurrentLocation);
+}
+
 /* ==========================
    Ferry Routes
 ========================== */
@@ -845,18 +914,14 @@ function renderFerryRoutes(routes, place = currentPlace) {
 
 refreshFerryBtn.addEventListener("click", () => loadFerryRoutes(currentPlace));
 window.addEventListener("DOMContentLoaded", () => {
+  // Start with a sensible default place — this will trigger weather, storms, and ferries
+  selectPlace({
+    name: "Manila",
+    admin1: "Metro Manila",
+    country: "Philippines",
+    latitude: 14.5995,
+    longitude: 120.9842,
+  });
 
-    loadFerryRoutes(); 
-    loadStorms(); 
-
-    selectPlace({
-        name: "Manila",
-        admin1: "Metro Manila",
-        country: "Philippines",
-        latitude: 14.5995,
-        longitude: 120.9842,
-    });
-
-    if (locateBtn) locateBtn.addEventListener("click", getCurrentLocation);
-
+  if (locateBtn) locateBtn.addEventListener("click", getCurrentLocation);
 });
