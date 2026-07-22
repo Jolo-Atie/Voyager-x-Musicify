@@ -1,5 +1,6 @@
 
 const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
+const GEOCODE_REVERSE = "https://geocoding-api.open-meteo.com/v1/reverse";
 const FORECAST_URL = "https://my.meteoblue.com/packages/basic-1h_basic-day";
 const METEOBLUE_API_KEY = "ZFgqArEKt497xQiY";
 const FERRY_API_URL = "./api/ferry-routes.json";
@@ -62,6 +63,7 @@ const advisoryFactors = document.getElementById("advisoryFactors");
 const alertBanner = document.getElementById("alertBanner");
 const alertText = document.getElementById("alertText");
 const footerCoords = document.getElementById("footerCoords");
+const locateBtn = document.getElementById("locateBtn");
 
 // Ferry Routes
 const ferryRoutesContainer = document.getElementById("ferryRoutes");
@@ -560,6 +562,71 @@ function renderHourlyChart(hourly) {
     </svg>
   `;
 }
+
+// --- Geolocation support: reverse geocode and select place ---
+function showLocationError(message) {
+  alertText.textContent = message;
+  alertBanner.hidden = false;
+  setTimeout(() => {
+    alertBanner.hidden = true;
+  }, 5000);
+}
+
+async function handleGeolocationSuccess(position) {
+  const { latitude, longitude } = position.coords;
+  try {
+    const url = `${GEOCODE_REVERSE}?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&count=1&language=en&format=json`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const place = (data && data.results && data.results[0])
+      ? {
+          name: data.results[0].name || "Current location",
+          admin1: data.results[0].admin1 || "",
+          country: data.results[0].country || "",
+          latitude: data.results[0].latitude || latitude,
+          longitude: data.results[0].longitude || longitude,
+        }
+      : {
+          name: "Current location",
+          admin1: "",
+          country: "",
+          latitude,
+          longitude,
+        };
+
+    selectPlace(place);
+  } catch (err) {
+    console.error("Reverse geocoding failed:", err);
+    showLocationError("Could not determine a place name for your location; using coordinates.");
+    selectPlace({ name: "Current location", admin1: "", country: "", latitude, longitude });
+  }
+}
+
+function handleGeolocationError(err) {
+  console.warn("Geolocation error:", err);
+  if (err.code === 1) showLocationError("Location permission denied.");
+  else if (err.code === 2) showLocationError("Position unavailable.");
+  else if (err.code === 3) showLocationError("Location request timed out.");
+  else showLocationError("Unable to retrieve your location.");
+}
+
+function getCurrentLocation() {
+  if (!navigator.geolocation) {
+    showLocationError("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  try {
+    navigator.geolocation.getCurrentPosition(handleGeolocationSuccess, handleGeolocationError, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    });
+  } catch (err) {
+    console.error("Geolocation invocation error:", err);
+    showLocationError("Failed to start location request.");
+  }
+}
 /* ==========================
    Ferry Routes
 ========================== */
@@ -789,5 +856,7 @@ window.addEventListener("DOMContentLoaded", () => {
         latitude: 14.5995,
         longitude: 120.9842,
     });
+
+    if (locateBtn) locateBtn.addEventListener("click", getCurrentLocation);
 
 });
