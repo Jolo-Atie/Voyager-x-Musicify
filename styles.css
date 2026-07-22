@@ -978,8 +978,17 @@ body[data-condition="storm"] .sky__bolt {
 }
 
 .forecast__row--preview {
-  grid-template-columns: repeat(3, 1fr);
-  max-width: 340px;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 10px;
+  max-width: none;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.forecast__row--preview .forecast__card {
+  flex: 1 0 92px;
 }
 
 .forecast__card {
@@ -1233,7 +1242,7 @@ body[data-condition="storm"] .sky__bolt {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  .forecast__row .forecast__card:nth-child(n+5) {
+  .forecast__row:not(.forecast__row--preview) .forecast__card:nth-child(n+5) {
     display: none;
   }
 
@@ -1252,7 +1261,6 @@ body[data-condition="storm"] .sky__bolt {
   }
 
   .forecast__row--preview {
-    grid-template-columns: repeat(3, 1fr);
     max-width: none;
   }
 }
@@ -1328,4 +1336,31 @@ body[data-condition="storm"] .sky__bolt {
 
 .ferry__error {
   color: #ff6b6b;
+}
+.hero__icon{
+
+    width:72px;
+    height:72px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:22px;
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(20px);
+
+}
+
+.hero__icon svg{
+
+    width:42px;
+    height:42px;
+
+    stroke:#ffffff;
+
+    stroke-width:2;
+
 }

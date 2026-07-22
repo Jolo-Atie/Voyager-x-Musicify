@@ -1,0 +1,60 @@
+<section class="page" id="page-home" data-page="home">
+  <div class="grid">
+    <section class="panel panel--hero">
+      <div class="hero__sky" aria-hidden="true">
+        <div class="sky__sun"></div>
+        <div class="sky__moon"></div>
+        <div class="sky__stars"></div>
+        <div class="sky__cloud sky__cloud--a"></div>
+        <div class="sky__cloud sky__cloud--b"></div>
+        <div class="sky__rain"></div>
+        <div class="sky__snow"></div>
+        <div class="sky__bolt"></div>
+      </div>
+
+      <div class="hero__top">
+        <div>
+          <p class="hero__location" id="locationName">—</p>
+          <p class="hero__updated" id="updatedAt">—</p>
+        </div>
+        <div class="hero__icon" id="conditionIcon"></div>
+      </div>
+
+      <div class="hero__temp">
+        <span class="hero__temp-value" id="tempValue">--</span>
+        <span class="hero__temp-unit">°C</span>
+      </div>
+      <p class="hero__condition" id="conditionText">Loading…</p>
+
+      <button class="hero__advisory" id="advisory" data-page-link="advisory">
+        <span class="hero__advisory-dot"></span>
+        <span class="hero__advisory-text">Checking conditions…</span>
+        <span class="hero__advisory-arrow">Details →</span>
+      </button>
+    </section>
+
+    <section class="panel panel--stat">
+      <p class="stat__label">Humidity</p>
+      <p class="stat__value"><span id="humidityValue">--</span><span class="stat__unit">%</span></p>
+      <div class="stat__bar">
+        <div class="stat__bar-fill" id="humidityBar"></div>
+      </div>
+    </section>
+
+    <section class="panel panel--stat">
+      <p class="stat__label">Wind speed</p>
+      <p class="stat__value"><span id="windValue">--</span><span class="stat__unit">km/h</span></p>
+      <div class="stat__compass" id="windCompass">
+        <span class="stat__needle" id="windNeedle"></span>
+      </div>
+    </section>
+
+    <section class="panel panel--preview">
+      <div class="section__head">
+        <p class="section__label">Next 7 days</p>
+        <button class="link-btn" data-page-link="forecast">Forecast details →</button>
+      </div>
+      <div class="forecast__row forecast__row--preview" id="forecastPreview"></div>
+    </section>
+  </div>
+</section>

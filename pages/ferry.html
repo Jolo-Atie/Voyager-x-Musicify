@@ -1,0 +1,35 @@
+<section class="page" id="page-ferry" data-page="ferry">
+  <div class="page__header">
+    <p class="page__eyebrow">03 · Ferry Routes</p>
+    <h1 class="page__title">Ferry route status</h1>
+    <p class="page__body">Check current ferry schedules and recommendations for your selected destination.</p>
+  </div>
+
+  <div class="grid grid--single">
+    <section class="panel panel--ferry">
+      <div class="section__head">
+        <p class="section__label">Route recommendations</p>
+        <button class="link-btn" id="refreshFerryBtn">Refresh</button>
+      </div>
+
+      <p class="ferry__subtitle">
+        Available ferry schedules for your selected destination.
+      </p>
+
+      <div id="ferryLoading" class="ferry__loading" hidden>
+        Loading ferry routes...
+      </div>
+
+      <div id="ferryError" class="ferry__error" hidden>
+        Unable to load ferry routes.
+      </div>
+
+      <div id="ferryRoutes"></div>
+
+      <div class="ferry__recommendation">
+        <h4>Travel Recommendation</h4>
+        <p id="ferryRecommendation">Search a location to receive ferry travel recommendations.</p>
+      </div>
+    </section>
+  </div>
+</section>

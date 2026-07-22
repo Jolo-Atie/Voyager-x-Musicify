@@ -19,7 +19,6 @@
 
   <div class="drawer-overlay" id="drawerOverlay"></div>
 
-  <!-- Off-canvas itinerary navigation -->
   <nav class="drawer" id="drawer" aria-label="Main navigation">
     <div class="drawer__head">
       <button class="drawer__close" id="drawerClose" aria-label="Close menu">
@@ -61,8 +60,18 @@
         </button>
       </li>
       <li>
-        <button class="navlink" data-page="advisory">
+        <button class="navlink" data-page="ferry">
           <span class="navlink__stop">03</span>
+          <span class="navlink__icon">🚢</span>
+          <span class="navlink__text">
+            <span class="navlink__title">Ferry</span>
+            <span class="navlink__sub">Route status</span>
+          </span>
+        </button>
+      </li>
+      <li>
+        <button class="navlink" data-page="advisory">
+          <span class="navlink__stop">04</span>
           <span class="navlink__icon">🚦</span>
           <span class="navlink__text">
             <span class="navlink__title">Advisory</span>
@@ -72,7 +81,7 @@
       </li>
       <li>
         <button class="navlink" data-page="about">
-          <span class="navlink__stop">04</span>
+          <span class="navlink__stop">05</span>
           <span class="navlink__icon">ℹ️</span>
           <span class="navlink__text">
             <span class="navlink__title">About</span>
@@ -91,7 +100,6 @@
   </nav>
 
   <div class="shell">
-
     <header class="topbar">
       <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
         <span></span><span></span><span></span>
@@ -123,7 +131,6 @@
       </form>
     </header>
 
-    <!-- Weather alert banner — shown site-wide since it's safety-critical -->
     <div class="alert" id="alertBanner" hidden role="alert" aria-live="assertive">
       <span class="alert__icon">⚠️</span>
       <span class="alert__text" id="alertText"></span>
@@ -164,261 +171,7 @@
     </div>
 
     <main id="pages" hidden>
-
-      <!-- ============ HOME ============ -->
-      <section class="page" id="page-home" data-page="home">
-        <div class="grid">
-
-          <section class="panel panel--hero">
-            <div class="hero__sky" aria-hidden="true">
-              <div class="sky__sun"></div>
-              <div class="sky__moon"></div>
-              <div class="sky__stars"></div>
-              <div class="sky__cloud sky__cloud--a"></div>
-              <div class="sky__cloud sky__cloud--b"></div>
-              <div class="sky__rain"></div>
-              <div class="sky__snow"></div>
-              <div class="sky__bolt"></div>
-            </div>
-
-            <div class="hero__top">
-              <div>
-                <p class="hero__location" id="locationName">—</p>
-                <p class="hero__updated" id="updatedAt">—</p>
-              </div>
-              <div class="hero__icon" id="conditionIcon"></div>
-            </div>
-
-            <div class="hero__temp">
-              <span class="hero__temp-value" id="tempValue">--</span>
-              <span class="hero__temp-unit">°C</span>
-            </div>
-            <p class="hero__condition" id="conditionText">Loading…</p>
-
-            <button class="hero__advisory" id="advisory" data-page-link="advisory">
-              <span class="hero__advisory-dot"></span>
-              <span class="hero__advisory-text">Checking conditions…</span>
-              <span class="hero__advisory-arrow">Details →</span>
-            </button>
-          </section>
-
-          <section class="panel panel--stat">
-            <p class="stat__label">Humidity</p>
-            <p class="stat__value"><span id="humidityValue">--</span><span class="stat__unit">%</span></p>
-            <div class="stat__bar">
-              <div class="stat__bar-fill" id="humidityBar"></div>
-            </div>
-          </section>
-
-          <section class="panel panel--stat">
-            <p class="stat__label">Wind speed</p>
-            <p class="stat__value"><span id="windValue">--</span><span class="stat__unit">km/h</span></p>
-            <div class="stat__compass" id="windCompass">
-              <span class="stat__needle" id="windNeedle"></span>
-            </div>
-          </section>
-
-          <section class="panel panel--preview">
-            <div class="section__head">
-              <p class="section__label">Next 3 days</p>
-              <button class="link-btn" data-page-link="forecast">Full forecast →</button>
-            </div>
-            <div class="forecast__row forecast__row--preview" id="forecastPreview"></div>
-          </section>
-
-        </div>
-      </section>
-
-      <!-- ============ FERRY ROUTES ============ -->
-      <section class="page" id="page-ferry" data-page="ferry" hidden>
-        <div class="page__header">
-          <p class="page__eyebrow">03 · Ferry Routes</p>
-          <h1 class="page__title">Ferry route status</h1>
-          <p class="page__body">Check current ferry schedules and recommendations for your selected destination.</p>
-        </div>
-
-        <div class="grid grid--single">
-          <section class="panel panel--ferry">
-            <div class="section__head">
-              <p class="section__label">Route recommendations</p>
-              <button class="link-btn" id="refreshFerryBtn">Refresh</button>
-            </div>
-
-            <p class="ferry__subtitle">
-              Available ferry schedules for your selected destination.
-            </p>
-
-            <div id="ferryLoading" class="ferry__loading" hidden>
-              Loading ferry routes...
-            </div>
-
-            <div id="ferryError" class="ferry__error" hidden>
-              Unable to load ferry routes.
-            </div>
-
-            <div id="ferryRoutes"></div>
-
-            <div class="ferry__recommendation">
-              <h4>Travel Recommendation</h4>
-              <p id="ferryRecommendation">Search a location to receive ferry travel recommendations.</p>
-            </div>
-          </section>
-        </div>
-      </section>
-
-      <!-- ============ FORECAST ============ -->
-      <section class="page" id="page-forecast" data-page="forecast" hidden>
-        <div class="page__header">
-          <p class="page__eyebrow">02 · Weather Forecast</p>
-
-          <h1 class="page__title">7-day outlook</h1>
-          <p class="page__body" id="forecastLocationLine">Search a location to see its forecast.</p>
-        </div>
-
-        <div class="grid grid--single">
-          <section class="panel panel--hourly">
-            <p class="section__label">Next 24 hours</p>
-            <div id="hourlyChart"></div>
-          </section>
-
-          <section class="panel panel--forecast">
-            <p class="section__label">7-day forecast</p>
-            <div class="forecast__row" id="forecastRow"></div>
-          </section>
-        </div>
-      </section>
-
-      <!-- ============ ADVISORY ============ -->
-      <section class="page" id="page-advisory" data-page="advisory" hidden>
-        <div class="page__header">
-          <p class="page__eyebrow">03 · Travel Advisory</p>
-          <h1 class="page__title">Is it safe to travel?</h1>
-          <p class="page__body">Voyager rates current travel conditions using weather category, wind speed, and rain
-            probability for today.</p>
-        </div>
-
-        <div class="grid grid--single">
-          <section class="panel panel--advisory-full" id="advisoryFull">
-            <div class="advisory-full__badge" id="advisoryFullBadge">🟢</div>
-            <p class="advisory-full__level" id="advisoryFullLevel">Safe to travel</p>
-            <p class="advisory-full__text" id="advisoryFullText">Search a location to get a travel recommendation.</p>
-            <ul class="advisory-full__factors" id="advisoryFactors"></ul>
-          </section>
-
-          <section class="panel panel--legend">
-            <p class="section__label">Advisory levels</p>
-            <ul class="legend">
-              <li><span class="legend__dot legend__dot--safe"></span>
-                <div>
-                  <p class="legend__title">🟢 Safe to travel</p>
-                  <p class="legend__body">Clear or mild conditions with low wind and rain risk.</p>
-                </div>
-              </li>
-              <li><span class="legend__dot legend__dot--caution"></span>
-                <div>
-                  <p class="legend__title">🟡 Travel with caution</p>
-                  <p class="legend__body">Rain, snow, or moderate wind — plan for delays.</p>
-                </div>
-              </li>
-              <li><span class="legend__dot legend__dot--danger"></span>
-                <div>
-                  <p class="legend__title">🔴 Travel not recommended</p>
-                  <p class="legend__body">Thunderstorms, high winds, or a high chance of heavy rain.</p>
-                </div>
-              </li>
-            </ul>
-          </section>
-        </div>
-      </section>
-
-      <!-- ============ ABOUT ============ -->
-      <section class="page" id="page-about" data-page="about" hidden>
-        <div class="page__header">
-          <p class="page__eyebrow">04 · Information</p>
-          <h1 class="page__title">About Voyager</h1>
-          <p class="page__body">Your intelligent travel companion, combining real-time weather data with travel safety insights and ferry scheduling.</p>
-        </div>
-
-        <div class="grid grid--single">
-          <section class="panel panel--about">
-            <p class="section__label">✨ Features</p>
-            <ul class="about__list">
-              <li>
-                <span class="about__icon">⛅</span>
-                <div>
-                  <strong>Weather Dashboard</strong>
-                  <p>Live temperature, conditions, humidity, and wind speed for your destination.</p>
-                </div>
-              </li>
-              <li>
-                <span class="about__icon"></span>
-                <div>
-                  <strong>7-Day Forecast</strong>
-                  <p>Daily highs and lows with detailed hourly temperature trends.</p>
-                </div>
-              </li>
-              <li>
-                <span class="about__icon">🌐</span>
-                <div>
-                  <strong>Global Search</strong>
-                  <p>Find any city or municipality worldwide instantly.</p>
-                </div>
-              </li>
-              <li>
-                <span class="about__icon">🚦</span>
-                <div>
-                  <strong>Travel Advisory</strong>
-                  <p>Automated safety ratings based on current weather conditions.</p>
-                </div>
-              </li>
-              <li>
-                <span class="about__icon">🚢</span>
-                <div>
-                  <strong>Ferry Routes</strong>
-                  <p>Dynamic ferry schedules with real-time distance calculations.</p>
-                </div>
-              </li>
-              <li>
-                <span class="about__icon">⚠️</span>
-                <div>
-                  <strong>Alert System</strong>
-                  <p>Instant notifications for severe weather conditions.</p>
-                </div>
-              </li>
-            </ul>
-          </section>
-
-          <section class="panel panel--about">
-            <p class="section__label">📊 Data Sources</p>
-            <div class="about__sources">
-              <div class="about__source">
-                <p class="about__source-title">Weather Data</p>
-                <p class="about__source-desc">Powered by <strong>meteoblue</strong>, a leading weather API providing accurate forecasts and current conditions.</p>
-              </div>
-              <div class="about__source">
-                <p class="about__source-title">Location Search</p>
-                <p class="about__source-desc">Using <strong>Open-Meteo</strong>'s free geocoding service for global location data.</p>
-              </div>
-              <div class="about__source">
-                <p class="about__source-title">Ferry Routes</p>
-                <p class="about__source-desc">Dynamically generated based on geographic proximity using Haversine distance calculations.</p>
-              </div>
-            </div>
-            <p class="about__disclaimer">ℹ️ Travel advisories are automatically generated from weather data and serve as a general guide. Always confirm conditions with official local authorities before traveling.</p>
-          </section>
-
-          <section class="panel panel--about panel--about-cta">
-            <div class="about__cta">
-              <p class="about__cta-title">Ready to explore?</p>
-              <p class="about__cta-text">Search for any city above to get started with live weather, forecasts, and travel recommendations.</p>
-              <button class="about__cta-btn" onclick="document.getElementById('searchInput').focus()">
-                Start Exploring
-              </button>
-            </div>
-          </section>
-        </div>
-      </section>
-
+      <div id="pageContent"></div>
     </main>
 
     <footer class="footer">
@@ -429,7 +182,7 @@
         </div>
         <div class="footer__section">
           <p class="footer__label">Data Sources</p>
-          <p class="footer__text">Weather by <strong>meteoblue</strong>, Locations by <strong>Open-Meteo</strong></p>
+          <p class="footer__text">Weather and locations by <strong>Open-Meteo</strong></p>
         </div>
         <div class="footer__section">
           <p class="footer__label">Location</p>
@@ -440,10 +193,9 @@
         <p class="footer__copyright">© 2024 Voyager. Travel data updated in real-time.</p>
       </div>
     </footer>
-
   </div>
-
-  <script src="script.js"></script>
+<script type="module" src="js/app.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 </body>
 
 </html>

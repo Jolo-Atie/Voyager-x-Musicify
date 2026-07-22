@@ -50,4 +50,4 @@ To provide travelers with reliable weather information and simple travel recomme
 - HTML
 - CSS
 - JavaScript
-- Weather API (e.g., MeteoBlue API)
+- Open-Meteo weather and geocoding APIs
